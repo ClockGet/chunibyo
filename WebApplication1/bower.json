@@ -1,0 +1,15 @@
+{
+  "name": "asp.net",
+  "private": true,
+  "dependencies": {
+    "bootstrap": "3.3.7",
+    "jquery": "2.2.0",
+    "jquery-validation": "1.14.0",
+    "jquery-validation-unobtrusive": "3.2.6",
+    "angular": "^1.6.6",
+    "angular-ui-notification": "^0.3.6",
+    "angular-lazy-img": "^1.5.1",
+    "angular-cookies": "^1.6.6",
+    "ng-scrollbars": "^0.0.11"
+  }
+}

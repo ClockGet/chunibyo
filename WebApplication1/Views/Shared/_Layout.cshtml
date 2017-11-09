@@ -1,0 +1,72 @@
+﻿<!DOCTYPE html>
+<html ng-app="chunibyo">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE-edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title ng-bind="page_title">Chunibyo</title>
+
+    <environment include="Development">
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+        <link rel="stylesheet" href="~/lib/angular-ui-notification/dist/angular-ui-notification.css"/>
+        <link rel="stylesheet" href="~/css/site.css" />
+        <link rel="stylesheet" href="~/css/player.css"/>
+        <link rel="stylesheet" href="~/lib/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.css"/>
+    </environment>
+    <environment exclude="Development">
+        <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css"
+              asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
+              asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
+        <link rel="stylesheet" href="~/lib/angular-ui-notification/dist/angular-ui-notification.min.css"/>
+        <link rel="stylesheet" href="~/css/player.min.css" asp-append-version="true"/>
+        <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/lib/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.min.css"/>
+    </environment>
+
+    <environment include="Development">
+        <script src="~/lib/jquery/dist/jquery.js"></script>
+        <script src="~/lib/angular/angular.js"></script>
+        <script src="~/lib/angular-cookies/angular-cookies.js"></script>
+        <script src="~/js/angular-soundmanager2.js"></script>
+        <script src="~/lib/angular-ui-notification/dist/angular-ui-notification.js"></script>
+        <script src="~/lib/angular-lazy-img/release/angular-lazy-img.js"></script>
+        <script src="~/js/angular-encrypt.js"></script>
+        <script src="~/js/angular-authentication.js"></script>
+        <script src="~/lib/jquery-mousewheel/jquery.mousewheel.js"></script>
+        <script src="~/lib/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.js"></script>
+        <script src="~/lib/ng-scrollbars/src/scrollbars.js"></script>
+        <script src="~/js/site.js" asp-append-version="true"></script>
+    </environment>
+    <environment exclude="Development">
+        <script src="https://cdn.bootcss.com/jquery/2.2.0/jquery.min.js"
+                asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
+                asp-fallback-test="window.jQuery"
+                asp-subresource-integrity-src="~/lib/jquery/dist/jquery.min.js"
+                asp-subresource-integrity-hash-algorithms="SHA384">
+        </script>
+        <script src="https://cdn.bootcss.com/angular.js/1.6.6/angular.min.js"
+                asp-fallback-src="~/lib/angular/angular.min.js"
+                asp-fallback-test="window.angular"
+                asp-subresource-integrity-src="~/lib/angular/angular.min.js"
+                asp-subresource-integrity-hash-algorithms="SHA384"></script>
+        <script src="https://cdn.bootcss.com/angular.js/1.6.6/angular-cookies.min.js"
+                asp-fallback-src="~/lib/angular-cookies/angular-cookies.min.js"
+                asp-fallback-test="window.angular && angular.module('ngCookies')"
+                asp-subresource-integrity-src="~/lib/angular-cookies/angular-cookies.min.js"
+                asp-subresource-integrity-hash-algorithms="SHA384"></script>
+        <script src="~/js/angular-soundmanager2.min.js" asp-append-version="true"></script>
+        <script src="~/lib/angular-ui-notification/dist/angular-ui-notification.min.js"></script>
+        <script src="~/lib/angular-lazy-img/release/angular-lazy-img.min.js"></script>
+        <script src="~/js/angular-encrypt.min.js"></script>
+        <script src="~/js/angular-authentication.min.js"></script>
+        <script src="~/lib/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.concat.min.js"></script>
+        <script src="~/lib/ng-scrollbars/dist/scrollbars.min.js"></script>
+        <script src="~/js/site.min.js" asp-append-version="true"></script>
+    </environment>
+</head>
+<body ng-controller="NavigationController">
+    @RenderBody()
+    
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,359 @@
+﻿  <!-- loading -->
+<div class="flyover" ng-show="loading">
+    <div class="mask"></div>
+    <div class="alert alert-info">
+        <strong>Loading...</strong>
+    </div>
+</div>
+<!-- dialog -->
+<div class="shadow" ng-hide="is_dialog_hidden==1"></div>
+<div class="dialog" ng-hide="is_dialog_hidden==1" ng-style="myStyle">
+    <div class="dialog-header"> <span>{{ dialog_title }}</span> <span class="dialog-close" ng-click="closeDialog()">×</span></div>
+    <div class="dialog-body">
+
+        <!-- choose playlist dialog -->
+        <ul class="dialog-playlist" ng-show="dialog_type==0">
+            <li class="detail-add" ng-click="newDialogOption()">
+                <img src="~/images/mycover.jpg" />
+                <h2> 新建歌单 </h2>
+            </li>
+            <li ng-repeat="playlist in myplaylist track by $index" ng-class-odd="'odd'" ng-class-even="'even'" ng-click="chooseDialogOption(playlist.listId)">
+                <img src="~/images/pinner.png" lazy-img="{{ playlist.coverImgUrl }}" />
+                <h2> {{ playlist.title }} </h2>
+            </li>
+        </ul>
+
+        <!-- create new playlist dialog -->
+        <div ng-show="dialog_type==1" class="dialog-newplaylist">
+            <input type="text" class="form-control" placeholder="输入歌单名称" ng-model="newlist_title" />
+            <button class="btn btn-primary confirm-button" ng-click="createAndAddPlaylist()">创建并添加</button>
+            <button class="btn btn-default" ng-click="cancelNewDialog()">取消</button>
+        </div>
+
+    </div>
+</div>
+
+<!-- page header -->
+<div class="masthead clearfix">
+    <div class="inner">
+        <img class="logo" src="~/images/logo.png" />
+        <h3 class="masthead-brand">Chunibyo</h3>
+        <nav>
+            <ul class="nav masthead-nav">
+                <li ng-class="{ 'active':current_tag==1 }"><a ng-click="showTag(1)">我的歌单</a></li>
+                <li ng-class="{ 'active':current_tag==2 }"><a ng-click="showTag(2)">精选歌单</a></li>
+                <li ng-class="{ 'active':current_tag==3 }"><a ng-click="showTag(3)">快速搜索</a></li>
+                <li ng-class="{ 'active':current_tag==4 }"><a ng-click="showTag(4)">登录&nbsp;&#47;&nbsp;注册</a></li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+
+<!-- content page: 我的歌单 -->
+<div class="site-wrapper" ng-show="current_tag==1" ng-controller="MyPlayListController">
+    <div class="site-wrapper-innerd" resize>
+        <div class="cover-container">
+            <div class="playlist" ng-init="loadMyPlaylist();">
+                <ul class="playlist-covers">
+                    <!-- Create a binding between the searchString model and the text field -->
+                    <li ng-repeat="i in myplaylists track by $index">
+                        <div class="u-cover">
+                            <img src="~/images/pinner.png" lazy-img="{{i.coverImgUrl}}">
+                            <a title="" class="mask" ng-click="showPlaylist(i.listId,true)"></a>
+                            <div class="bottom">
+                                <span class="icon-headset"></span>
+
+                                <!-- span class="nb">{{ i.PlayCount }}</span -->
+                                <a class="icon-play" ng-click="directplaylist(i.listId)" title="播放"></a>
+                            </div>
+                        </div>
+                        <p class="desc">
+                            <a title="" ng-click="showPlaylist(i.listId,true)">{{i.title}}</a>
+                        </p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- content page: 精选歌单 -->
+<div class="site-wrapper" ng-show="current_tag==2" ng-controller="PlayListController" ng-init="loadPlaylist();">
+    <div class="cover-container container-placeholder">
+        <div class="btn-group-vertical source-list" ng-show="is_window_hidden==1">
+            <button type="button" class="btn btn-default" ng-class="{'active':isActiveTab(0)}" ng-click="changeTab(0)">网易</button>
+            <button type="button" class="btn btn-default" ng-class="{'active':isActiveTab(1)}" ng-click="changeTab(1)">虾米</button>
+            <button type="button" class="btn btn-default" ng-class="{'active':isActiveTab(2)}" ng-click="changeTab(2)">QQ音乐</button>
+        </div>
+    </div>
+    <div id="hot-play-list" class="site-wrapper-innerd" resize infinite-scroll="scrolling()" content-selector="'#playlist-content'">
+        <div class="cover-container" id="playlist-content">
+            <!--<div class="playlist">-->
+            <ul class="playlist-covers">
+                <li ng-repeat="i in result ">
+                    <div class="u-cover">
+                        <img src="~/images/pinner.png" class="img-thumbnail" lazy-img="{{i.coverImgUrl}}">
+                        <a title="" class="mask" ng-click="showPlaylist(i.listId,false)"></a>
+                        <div class="bottom">
+                            <a class="icon-play" title="播放" ng-click="directplaylist(i.listId)"></a>
+                        </div>
+                    </div>
+                    <div class="desc">
+                        <a title="{{i.title}}" ng-click="showPlaylist(i.listId,false)">{{i.title}}</a>
+                    </div>
+                </li>
+                <div style="clear:both;"></div>
+            </ul>
+            <!--</div>-->
+        </div>
+    </div>
+</div>
+
+
+<!-- content page: 快速搜索 -->
+<div class="site-wrapper" ng-show="current_tag==3">
+    <div class="site-wrapper-innerd" resize>
+        <div class="cover-container">
+            <!-- Initialize a new AngularJS app and associate it with a module named "instantSearch"-->
+            <div class="searchbox" ng-controller="InstantSearchController">
+                <!-- Create a binding between the searchString model and the text field -->
+                <input type="text" class="form-control" ng-model="keywords" placeholder="输入歌曲名，歌手或专辑" ng-model-options="{debounce: 500}" />
+
+                <ul class="nav nav-tabs">
+                    <li ng-class="{'active':isActiveTab(0)}" ng-click="changeTab(0)"><a>网易</a></li>
+                    <li ng-class="{'active':isActiveTab(1)}" ng-click="changeTab(1)"><a href="#">虾米</a></li>
+                    <li ng-class="{'active':isActiveTab(2)}" ng-click="changeTab(2)"><a href="#">QQ音乐</a></li>
+                    <img class="searchspinner" src="~/images/loading.gif" ng-show="loading">
+                </ul>
+
+                <ul class="detail-songlist">
+                    <li ng-repeat="song in result" ng-class-odd="'odd'" ng-class-even="'even'" ng-mouseenter="options=true" ng-mouseleave="options=false">
+                        <div class="col2"><a add-and-play="song">{{ song.title }}</a></div>
+                        <div class="col1 detail-artist"><a ng-click="showArtist(song.artistId)">{{ song.artist }}</a></div>
+                        <div class="col2"><a ng-click="showAlbum(song.albumId)">{{ song.album }}</a></div>
+                        <div class="detail-tools">
+                            <a title="添加到当前播放" class="detail-add-button" add-without-play="song" ng-show="options"></a>
+                            <a title="添加到歌单" class="detail-fav-button" ng-show="options" ng-click="showDialog(0, song)"></a>
+                            <a title="原始链接" class="source-button" open-song-source="song" ng-show="options"></a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- content page: 登录/注册 -->
+<div class="site-wrapper" ng-show="current_tag==4" ng-init="vm.loginLogic=true;vm.resetPassword=false;" ng-controller="LoginController as vm">
+    <div class="site-wrapper-innerd" resize>
+        <div class="cover-container">
+            <div class="settings-title"><h3>{{vm.resetPassword?"邮箱找回密码":(vm.loginLogic?"登录":"注册") }}</h3></div>
+            <div class="settings-content">
+                <div ng-if="vm.resetPassword">
+                    <div class="col-md-6 col-md-offset-3">
+                        <form name="form" ng-submit="vm.resetpassword()" role="form">
+                            <div class="form-group" ng-class="{'has-success':form.username.$valid&&form.username.$touched, 'has-error': form.username.$invalid&&form.username.$touched }">
+                                <label for="username">电子邮箱</label>
+                                <input type="email" name="username" id="username" class="form-control" ng-model="vm.username" required />
+                                <span ng-show="form.username.$touched && form.username.$error.required" class="help-block">邮箱地址不能为空</span>
+                                <span ng-show="form.username.$touched && form.username.$error.email" class="help-block">邮箱地址不合法</span>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" ng-disabled="form.$invalid || vm.dataLoading" class="btn btn-primary">发送邮件</button>
+                                <img ng-if="vm.dataLoading" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />
+                                <a class="btn btn-link" ng-click="vm.resetPassword=false">返回</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div ng-if="!vm.resetPassword&&user.isLogin">
+                    <span>你已登录 {{user.userName}} !</span>
+                    <a class="btn btn-link" ng-click="vm.logout()">注销</a>
+                </div>
+                <div ng-if="!vm.resetPassword&&!user.isLogin">
+                    <div ng-if="vm.loginLogic" class="col-md-6 col-md-offset-3">
+                        <form name="form" ng-submit="vm.login()" role="form">
+                            <div class="form-group" ng-class="{'has-success':form.username.$valid&&form.username.$touched, 'has-error': form.username.$invalid&&form.username.$touched }">
+                                <label for="username">邮箱</label>
+                                <input type="email" name="username" id="username" class="form-control" ng-model="vm.username" required />
+                                <span ng-show="form.username.$touched && form.username.$error.required" class="help-block">邮箱地址不能为空</span>
+                                <span ng-show="form.username.$touched && form.username.$error.email" class="help-block">邮箱地址不合法</span>
+                            </div>
+                            <div class="form-group" ng-class="{'has-success':form.password.$valid && form.password.$touched, 'has-error': form.username.$touched && form.password.$invalid }">
+                                <label for="password">密码</label>
+                                <input type="password" name="password" ng-pattern="/^[0-9A-Za-z_]+$/" ng-minlength="4" ng-maxlength="10" placeholder="只能是数字、字母和下划线" id="password" class="form-control" ng-model="vm.password" required />
+                                <span ng-show="form.password.$touched && form.password.$error.required" class="help-block">密码不能为空</span>
+                                <span ng-show="form.password.$touched && form.password.$error.pattern" class="help-block">只能是数字、字母和下划线</span>
+                                <span ng-show="form.password.$error.minlength ||form.password.$error.maxlength" class="help-block">密码为4-10位</span>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" ng-disabled="form.$invalid || vm.dataLoading" class="btn btn-primary">登录</button>
+                                <img ng-if="vm.dataLoading" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />
+                                <a class="btn btn-link" ng-click="vm.loginLogic=!vm.loginLogic">注册</a>
+                                <a class="btn btn-link" ng-click="vm.resetPassword=true">忘记密码</a>
+                            </div>
+                        </form>
+                    </div>
+                    <div ng-if="!vm.loginLogic" class="col-md-6 col-md-offset-3">
+                        <form name="form" ng-submit="vm.register()" role="form">
+                            <div class="form-group" ng-class="{'has-success':form.username.$valid&&form.username.$touched, 'has-error': form.username.$invalid&&form.username.$touched }">
+                                <label for="username">邮箱</label>
+                                <input type="email" name="username" id="username" class="form-control" ng-model="vm.username" required />
+                                <span ng-show="form.username.$touched && form.username.$error.required" class="help-block">邮箱地址不能为空</span>
+                                <span ng-show="form.username.$touched && form.username.$error.email" class="help-block">邮箱地址不合法</span>
+                            </div>
+                            <div class="form-group" ng-class="{'has-success':form.password.$valid && form.password.$touched, 'has-error': form.username.$touched && form.password.$invalid }">
+                                <label for="password">密码</label>
+                                <input type="password" name="password" ng-pattern="/^[0-9A-Za-z_]+$/" ng-minlength="4" ng-maxlength="10" placeholder="只能是数字、字母和下划线" id="password" class="form-control" ng-model="vm.password" required />
+                                <span ng-show="form.password.$touched && form.password.$error.required" class="help-block">密码不能为空</span>
+                                <span ng-show="form.password.$touched && form.password.$error.pattern" class="help-block">只能是数字、字母和下划线</span>
+                                <span ng-show="form.password.$error.minlength ||form.password.$error.maxlength" class="help-block">密码为4-10位</span>
+                            </div>
+                            <div class="form-group" ng-class="{'has-success':form.confirmPassword.$valid&&form.confirmPassword.$touched,'has-error':(form.confirmPassword.$invalid&&form.confirmPassword.$touched) ||(vm.password!=vm.confirmPassword && form.confirmPassword.$touched)}">
+                                <label for="confirmPassword">确认密码</label>
+                                <input type="password" name="confirmPassword" ng-pattern="/^[0-9A-Za-z_]+$/" ng-minlength="4" ng-maxlength="10" placeholder="只能是数字、字母和下划线" id="confirmPassword" class="form-control" ng-model="vm.confirmPassword" required />
+                                <span ng-show="form.confirmPassword.$touched && form.confirmPassword.$error.required" class="help-block">密码不能为空</span>
+                                <span ng-show="form.confirmPassword.$touched && form.confirmPassword.$error.pattern" class="help-block">只能是数字、字母和下划线</span>
+                                <span ng-show="vm.password!=vm.confirmPassword && form.confirmPassword.$touched" class="help-block">两次密码不一致</span>
+                                <span ng-show="form.confirmPassword.$error.minlength ||form.confirmPassword.$error.maxlength" class="help-block">密码为4-10位</span>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" ng-disabled="form.$invalid || vm.dataLoading || vm.password!=vm.confirmPassword" class="btn btn-primary">注册</button>
+                                <img ng-if="vm.dataLoading" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />
+                                <a class="btn btn-link" ng-click="vm.loginLogic=!vm.loginLogic">登录</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- track list window -->
+<div class="site-wrapper" ng-hide="is_window_hidden==1">
+    <div class="cover-container container-placeholder">
+        <div class="detail-close">
+            <span ng-click="popWindow()">&times;</span>
+        </div>
+    </div>
+    <div class="site-wrapper-innerd" resize>
+        <div class="cover-container">
+            <div class="playlist-detail">
+                <div class="detail-head">
+                    <div class="detail-head-cover">
+                        <img ng-src="{{ cover_img_url }}" err-src="/images/placeholder.png">
+                    </div>
+                    <div class="detail-head-title">
+                        <h2>{{ playlist_title }}</h2>
+                        <a title="播放歌单" class="play" ng-show="playlist_title!=''" ng-click="playmylist(list_id)">播放</a>
+                        <a title="删除歌单" class="delete" ng-show="playlist_title!='' && is_mine=='1'" ng-click="removemylist(list_id)">删除</a>
+                        <a title="收藏歌单" class="clone" ng-show="playlist_title!='' && is_mine=='0'" ng-click="clonelist(list_id)">收藏</a>
+                    </div>
+                </div>
+                <ul class="detail-songlist">
+                    <li ng-repeat="song in songs track by $index" ng-class-odd="'odd'" ng-class-even="'even'" ng-mouseenter="options=true" ng-mouseleave="options=false">
+                        <div class="col2"><a add-and-play="song">{{ song.title }}</a></div>
+                        <div class="col1 detail-artist"><a ng-click="showArtist(song.artistId)">{{ song.artist }}</a></div>
+                        <div class="col2"><a ng-click="showAlbum(song.albumId)">{{ song.album }}</a></div>
+                        <div class="detail-tools">
+                            <a title="添加到当前播放" class="detail-add-button" add-without-play="song" ng-show="options"></a>
+                            <a title="添加到歌单" class="detail-fav-button" ng-click="showDialog(0, song)" ng-show="options && is_mine=='0'"></a>
+                            <a title="原始链接" class="source-button" open-song-source="song" ng-show="options"></a>
+                            <a title="从歌单删除" class="detail-delete-button" ng-click="removeSongFromPlaylist(song, list_id)" ng-show="options && is_mine=='1' "></a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- page footer -->
+<div class="mastfoot" ng-controller="PlayController as playCtrl" ng-init="loadLocalSettings()">
+    <div class="m-playbar">
+        <div class="btns">
+            <a class="previous" title="上一首" prev-track>上一首</a>
+            <a class="play" ng-class="{pas: isPlaying}" title="播放/暂停" play-pause-toggle>播放/暂停</a>
+            <a class="next" title="下一首" next-track>下一首</a>
+        </div>
+
+        <div class="head">
+            <img ng-src="{{ currentPlaying.imgUrl }}" err-src="/images/placeholder.png">
+            <a ng-click="showAlbum(currentPlaying.albumId)" class="mask"></a>
+        </div>
+
+        <div class="maininfo">
+            <div class="words">
+                <a class="overflowhide name notextdeco floatleft" title="{{currentPlaying.title}}">{{currentPlaying.title}}</a>
+                <span class="by overflowhide floatleft">
+                    <span title="{{ currentPlaying.artist }}">
+                        <a class="" ng-click="showArtist(currentPlaying.artistId)">{{ currentPlaying.artist }}</a>
+                    </span>
+                </span>
+                <a open-song-source="currentPlaying" class="src" title="原始链接"></a>
+            </div>
+
+            <div class="m-pbar play">
+                <div class="barbg" id="progressbar" mode="play" draggable>
+                    <!-- <div class="rdy" ng-style="{width : myProgress + '%' }"></div> -->
+                    <div class="cur" ng-style="{width : myProgress + '%' }">
+                        <span class="btn"><i></i></span>
+                    </div>
+                </div>
+
+                <span class="time"><em>{{ currentPosition }}</em> <span ng-show=" currentDuration!=none ">/</span> {{ currentDuration }}</span>
+            </div>
+
+            <!-- init soundManager2 player -->
+            <sound-manager></sound-manager>
+        </div>
+
+        <div class="ctrl">
+            <a class="icn icn-add" ng-click="showDialog(0, currentPlaying)" title="添加到歌单">添加到歌单</a>
+            <a class="icn" ng-class="{ 'icn-repeatone': settings.playmode == 2,'icn-shuffle': settings.playmode == 1, 'icn-loop': settings.playmode == 0 }" title="{{ settings.playmode | playmode_title }}(s)" ng-click="changePlaymode()"></a>
+            <a class="icn icn-list" title="列表" ng-click="togglePlaylist()"></a>
+        </div>
+        <div class="volume-ctrl">
+            <a class="icn" ng-class="{ 'icn-vol-mute': mute, 'icn-vol': mute == false }" title="静音 增大 减少" ng-click="toggleMuteStatus()"></a>
+            <div class="m-pbar volume">
+                <div class="barbg" id="volumebar" mode="volume" draggable>
+                    <div class="cur" ng-style="{width : volume + '%' }">
+                        <span class="btn"><i></i></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="menu" ng-hide="menuHidden">
+            <div class="menu-header">
+                <span class="text">播放列表</span>
+                <a clear-playlist class="remove-all">
+                    <small>(移除所有)</small>
+                </a>
+                <a class="close-popup" ng-click="menuHidden=!menuHidden">
+                    <small>关闭</small>
+                </a>
+                <div toggle-switch class="toggle-switch switch-mini switch-primary" ng-model="show_lyric" on-label="歌词" off-label="频谱"></div>
+            </div>
+            <ul ng-scrollbars ng-scrollbars-config="config">
+                <li id="song{{ song.Id }}" ng-repeat="song in playlist track by $index" ng-class="{ playing: currentPlaying.id == song.id }" ng-mouseenter="playlist_highlight=true" ng-mouseleave="playlist_highlight=false">
+                    <div class="title" play-from-playlist="song"><a title="{{song.title}}">{{ song.title }}</a></div>
+                    <a class="icn-remove" remove-from-playlist="song" data-index="{{$index}}" ng-show="playlist_highlight"></a>
+                    <div class="singer" ng-click="showArtist(song.artistId)">{{ song.artist }}</div>
+                </li>
+            </ul>
+            <div class="lyric" ng-scrollbars ng-scrollbars-config="config" ng-scrollbars-update=updateScrollbar ng-show="show_lyric">
+                <div class="placeholder"></div>
+                <p ng-repeat="line in lyricArray track by $index" ng-class="{ 'highlight': line.lineNumber == lyricLineNumber }">{{ line.content }} </p>
+                <div class="placeholder"></div>
+            </div>
+            <div class="frequency" ng-show="!show_lyric">
+                <canvas id="darwCanvas" height="308">您的浏览器版本过低,请升级您的浏览器以获取更好的用户体验...</canvas>
+            </div>
+        </div>
+    </div>
+</div>
