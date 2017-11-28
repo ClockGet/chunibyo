@@ -49,7 +49,7 @@ namespace WebApplication1.Replay
             using (MD5 md5 = new MD5CryptoServiceProvider())
             {
                 return Convert.ToBase64String(md5.ComputeHash(songId)).Replace('/', '_').Replace('+', '-');
-            }   
+            }
         }
         private byte[] CreateSecretKey(int size)
         {
@@ -97,7 +97,7 @@ namespace WebApplication1.Replay
             var a2 = BigInteger.Parse(pubKey, System.Globalization.NumberStyles.HexNumber);
             var a3 = BigInteger.Parse(modulus, System.Globalization.NumberStyles.HexNumber);
             var rs = BigInteger.ModPow(a1, a2, a3);
-            return rs.ToString("x2").TrimStart('0').PadLeft(256,'0');
+            return rs.ToString("x2").TrimStart('0').PadLeft(256, '0');
         }
         private string EncryptedRequest(object token)
         {
@@ -130,9 +130,29 @@ namespace WebApplication1.Replay
             d.AlbumId = $"nealbum_{song["album"]["id"]}";
             d.Source = "netease";
             d.SourceUrl = $"http://music.163.com/#/song?id={song["id"]}";
-            if (song["album"]["picUrl"]!=null)
+            if (song["album"]["picUrl"] != null)
             {
                 d.ImgUrl = song["album"]["picUrl"];
+            }
+            else
+                d.ImgUrl = "";
+            d.Url = $"/api/playlist/trackfile?{d}";
+            return d;
+        }
+        private SongViewModel ConvertSong2(dynamic song)
+        {
+            SongViewModel d = new SongViewModel();
+            d.Id = $"netrack_{song["id"]}";
+            d.Title = song["name"];
+            d.Artist = song["ar"][0]["name"];
+            d.ArtistId = $"neartist_{song["ar"][0]["id"]}";
+            d.Album = song["al"]["name"];
+            d.AlbumId = $"nealbum_{song["al"]["id"]}";
+            d.Source = "netease";
+            d.SourceUrl = $"http://music.163.com/#/song?id={song["id"]}";
+            if (song["al"]["picUrl"] != null)
+            {
+                d.ImgUrl = song["al"]["picUrl"];
             }
             else
                 d.ImgUrl = "";
@@ -196,23 +216,32 @@ namespace WebApplication1.Replay
 
         public async Task<PlayListViewModel> GetPlayList(string playListId)
         {
-            string url = $"http://music.163.com/api/playlist/detail?id={playListId}";
-            var response = await HttpRequest.SendAsync(url);
+            var d = new
+            {
+                id = playListId,
+                offset = 0,
+                total = true,
+                limit = 1000,
+                n = 1000,
+                csrf_token = ""
+            };
+            string url = $"http://music.163.com/weapi/v3/playlist/detail";
+            var response = await HttpRequest.PostAsync(url, EncryptedRequest(d));
             if (response.Content != null)
             {
                 dynamic data = JsonConvert.DeserializeObject(response.Content);
                 PlayListInfoViewModel info = new PlayListInfoViewModel
                 {
-                    CoverImgUrl = data["result"]["coverImgUrl"],
-                    Title = data["result"]["name"],
+                    CoverImgUrl = data["playlist"]["coverImgUrl"],
+                    Title = data["playlist"]["name"],
                     Id = $"neplaylist_{playListId}"
                 };
                 var result = new List<SongViewModel>();
-                foreach (var song in data["result"]["tracks"])
+                foreach (var song in data["playlist"]["tracks"])
                 {
                     if (song["status"] == -1)
                         continue;
-                    result.Add(ConvertSong(song));
+                    result.Add(ConvertSong2(song));
                 }
                 return new PlayListViewModel { Info = info, Tracks = result };
             }
@@ -222,7 +251,7 @@ namespace WebApplication1.Replay
 
         public async Task<List<PlayListInfoViewModel>> GetPlayListInfos(int offset)
         {
-            dynamic lists = await TopPlayList(offset:offset);
+            dynamic lists = await TopPlayList(offset: offset);
             if (lists == null)
                 return null;
             var result = new List<PlayListInfoViewModel>();
@@ -245,8 +274,8 @@ namespace WebApplication1.Replay
             var d = new
             {
                 ids = new long[] { long.Parse(songId) },
-                br=12800,
-                csrf_token=""
+                br = 12800,
+                csrf_token = ""
             };
             string url = "http://music.163.com/weapi/song/enhance/player/url?csrf_token=";
             var response = await HttpRequest.PostAsync(url, EncryptedRequest(d));
@@ -263,11 +292,11 @@ namespace WebApplication1.Replay
             string searchUrl = "http://music.163.com/api/search/pc";
             var response = await HttpRequest.PostAsync(searchUrl, $"s={keyword}&type=1&offset=0&total=true&limit=60");
             List<SongViewModel> result = null;
-            if (response.Content!=null)
+            if (response.Content != null)
             {
                 dynamic data = JsonConvert.DeserializeObject(response.Content);
                 result = new List<SongViewModel>();
-                foreach(var song in data["result"]["songs"])
+                foreach (var song in data["result"]["songs"])
                 {
                     if (song["status"] == -1)
                         continue;
@@ -282,16 +311,16 @@ namespace WebApplication1.Replay
             var targetUrl = "http://music.163.com/weapi/song/lyric?csrf_token=";
             var d = new
             {
-                id=trackId,
-                lv=-1,
-                tv=-1,
-                csrf_token=""
+                id = trackId,
+                lv = -1,
+                tv = -1,
+                csrf_token = ""
             };
             var response = await HttpRequest.PostAsync(targetUrl, EncryptedRequest(d));
-            if(!string.IsNullOrEmpty(response.Content))
+            if (!string.IsNullOrEmpty(response.Content))
             {
                 dynamic data = JsonConvert.DeserializeObject(response.Content);
-                if(data["lrc"] !=null)
+                if (data["lrc"] != null)
                     return data["lrc"]["lyric"];
             }
             return null;
