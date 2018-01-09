@@ -194,7 +194,7 @@ namespace WebApplication1.Replay
                 dynamic data = JsonConvert.DeserializeObject(jsonString);
                 PlayListInfoViewModel info = new PlayListInfoViewModel();
                 string logoUrl = data["data"]["logo"];
-                info.CoverImgUrl = RetinaUrl(logoUrl);
+                info.CoverImgUrl = logoUrl;
                 info.Title = data["data"]["collect_name"];
                 info.Id = $"xmplaylist_{playListId}";
                 var result = new List<SongViewModel>();
@@ -237,10 +237,10 @@ namespace WebApplication1.Replay
         public async Task<string> GetUrlById(string songId)
         {
             string url = $"http://www.xiami.com/song/playlist/id/{songId}/object_name/default/object_id/0/cat/json";
-            var response = await httpClient.GetStringAsync(url);
-            if (!string.IsNullOrEmpty(response))
+            var response = await HttpRequest.SendAsync(url);
+            if (!string.IsNullOrEmpty(response.Content))
             {
-                dynamic data = JsonConvert.DeserializeObject(response);
+                dynamic data = JsonConvert.DeserializeObject(response.Content);
                 string secret = data["data"]["trackList"][0]["location"];
                 return Caesar(secret);
             }
