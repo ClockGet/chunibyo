@@ -23,7 +23,7 @@
     // Optionally specify minification options
     "minify": {
       "enabled": true,
-      "renameLocals": true
+      "renameLocals": false
     },
     // Optionally generate .map file
     "sourceMap": false
@@ -36,7 +36,7 @@
     // Optionally specify minification options
     "minify": {
       "enabled": true,
-      "renameLocals": true
+      "renameLocals": false
     },
     // Optionally generate .map file
     "sourceMap": false
@@ -46,7 +46,7 @@
     "inputFiles": [ "wwwroot/js/angular-encrypt.js" ],
     "minify": {
       "enabled": true,
-      "renameLocals": true
+      "renameLocals": false
     },
     "sourceMap": false
   },
@@ -55,7 +55,7 @@
     "inputFiles": [ "wwwroot/js/angular-authentication.js" ],
     "minify": {
       "enabled": true,
-      "renameLocals": true
+      "renameLocals": false
     },
     "sourceMap": false
   }
