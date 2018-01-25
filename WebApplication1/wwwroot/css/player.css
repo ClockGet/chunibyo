@@ -505,7 +505,7 @@ em, i {
     width: 100%;
     height: 349px;
     /*background-color: #121212;*/
-    background:hsla(0,0%,100%,.25) border-box;
+    background:hsla(0,0%,100%,.5) border-box;
     overflow:hidden;
     border-top-left-radius:.3em;
     border-top-right-radius:.3em;
@@ -561,6 +561,7 @@ em, i {
 
 .m-playbar .menu .lyric p{
     min-height: 20px;
+    color:rgba(0,0,0,.5);
 }
 
 .m-playbar .menu .lyric .placeholder{
@@ -569,7 +570,7 @@ em, i {
 
 .m-playbar .menu .lyric .highlight{
     font-size: 15px;
-    color: #ffffff;
+    color: #000000;
 }
 
 .m-playbar .menu .frequency{
@@ -591,6 +592,14 @@ em, i {
 .m-playbar .menu .playing {
     /*background-color: #555555;*/
     background-color:rgba(0,0,0,0.2);
+}
+
+.m-playbar .menu .playing a{
+    color:black;
+}
+
+.m-playbar .menu .playing .singer{
+    color:#333;
 }
 
 .m-playbar .menu li:hover, .m-playbar .menu li:focus {
@@ -631,7 +640,7 @@ li {
     left:19px;
     top:7px;
     font-size:18px;
-    color:#ffffff;
+    color:rgba(0,0,0,.5);
 }
 
 .menu .remove-all {
@@ -639,18 +648,19 @@ li {
     position: absolute;
     left: 113px;
     top: 9px;
+    color:rgba(0,0,0,.5);
 }
 
 .menu .close-popup {
-    float:right;
+    float: right;
     margin-right: 14px;
     font-size: 14px;
     text-decoration: none;
-    color: #aaaaaa;
+    color: rgba(0,0,0,.5);
 }
 
 .menu .close-popup:hover {
-    color: #ffffff;
+    color: #000000;
 }
 
 .menu .title {
